@@ -38,14 +38,13 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('apikey', 'K88194021788957');
         formData.append('language', 'eng');
   
-        const ocrResponse = await fetch('https://api.ocr.space/parse/image', {
-          method: 'POST',
-          body: formData,
+        const ocrResponse = await axios.post('https://api.ocr.space/parse/image', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
         });
   
-        if (!ocrResponse.ok) throw new Error('OCR API error');
-  
-        const ocrData = await ocrResponse.json();
+        const ocrData = ocrResponse.data;
         const parsedResults = ocrData?.ParsedResults;
         const extractedText = parsedResults && parsedResults[0]?.ParsedText
           ? parsedResults[0].ParsedText
@@ -56,21 +55,17 @@ document.addEventListener('DOMContentLoaded', function () {
         // AI API call (placeholder)
         const personalizedPrompt = `This is a question extracted from an image. The spellings may be wrong, so read accordingly. If there are options in the question, please provide an answer by choosing one of the following options based on the text below in bold. Also, add a simple explanation along with the question statement that you understood. Make sure any headings are bold. If there are no options, then answer accordingly. Whatever you answer, write it in bold at the end always:\n\n"${extractedText}"`;
   
-        const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
+        const aiResponse = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
+          messages: [{ role: 'user', content: personalizedPrompt }],
+          model: 'llama3-8b-8192',
+        }, {
           headers: {
             'Authorization': `Bearer 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`,
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messages: [{ role: 'user', content: personalizedPrompt }],
-            model: 'llama3-8b-8192',
-          }),
+          }
         });
   
-        if (!aiResponse.ok) throw new Error('AI API error');
-  
-        const aiData = await aiResponse.json();
+        const aiData = aiResponse.data;
         const gptAnswer = aiData.choices[0]?.message?.content || 'No response from AI';
   
         aiResponseDiv.innerHTML = `AI Response: ${marked.parse(gptAnswer)}`;
@@ -84,4 +79,3 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
-  
