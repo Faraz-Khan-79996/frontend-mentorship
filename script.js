@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
           model: 'llama3-8b-8192',
         }, {
           headers: {
-            'Authorization': `Bearer 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`,
+            'Authorization': `Bearer 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`,
             'Content-Type': 'application/json',
           }
         });
